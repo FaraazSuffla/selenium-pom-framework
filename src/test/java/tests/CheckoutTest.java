@@ -13,7 +13,7 @@ public class CheckoutTest extends BaseTest {
 
     private CheckoutPage checkoutPage;
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true, dependsOnMethods = "setUp")
     public void setupCartAndCheckout() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.login("standard_user", "secret_sauce");
