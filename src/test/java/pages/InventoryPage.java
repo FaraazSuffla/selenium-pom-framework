@@ -3,6 +3,7 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 import java.util.List;
 
@@ -11,12 +12,12 @@ public class InventoryPage {
     private final WebDriver driver;
 
     // Locators
-    private final By pageTitle       = By.cssSelector(".title");
-    private final By inventoryItems  = By.cssSelector(".inventory_item");
+    private final By pageTitle        = By.cssSelector(".title");
+    private final By inventoryItems   = By.cssSelector(".inventory_item");
     private final By addToCartButtons = By.cssSelector(".btn_inventory");
-    private final By cartBadge       = By.cssSelector(".shopping_cart_badge");
-    private final By cartIcon        = By.cssSelector(".shopping_cart_link");
-    private final By sortDropdown    = By.cssSelector("[data-test='product_sort_container']");
+    private final By cartBadge        = By.cssSelector(".shopping_cart_badge");
+    private final By cartIcon         = By.cssSelector(".shopping_cart_link");
+    private final By sortDropdown     = By.cssSelector("[data-test='product_sort_container']");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
@@ -64,8 +65,8 @@ public class InventoryPage {
         driver.findElement(cartIcon).click();
     }
 
-    public void sortBy(String option) {
-        WebElement dropdown = driver.findElement(sortDropdown);
-        dropdown.sendKeys(option);
+    public void sortBy(String visibleText) {
+        Select select = new Select(driver.findElement(sortDropdown));
+        select.selectByVisibleText(visibleText);
     }
 }
