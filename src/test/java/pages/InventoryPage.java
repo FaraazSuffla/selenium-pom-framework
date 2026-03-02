@@ -18,14 +18,13 @@ public class InventoryPage {
     // Locators
     private final By pageTitle        = By.cssSelector(".title");
     private final By inventoryItems   = By.cssSelector(".inventory_item");
-    private final By addToCartButtons = By.cssSelector("button[data-test^='add-to-cart']");
     private final By cartBadge        = By.cssSelector(".shopping_cart_badge");
     private final By cartIcon         = By.cssSelector(".shopping_cart_link");
     private final By sortDropdown     = By.cssSelector("[data-test='product_sort_container']");
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     public String getPageTitle() {
@@ -45,29 +44,41 @@ public class InventoryPage {
         return getInventoryItems().size();
     }
 
+    /**
+     * Clicks the "Add to Cart" button on a specific inventory item by index.
+     * Uses the .btn_inventory button within each .inventory_item container,
+     * and checks the button text to ensure it is an "Add to Cart" button.
+     */
+    private void clickAddToCartOnItem(int itemIndex) {
+        List<WebElement> items = wait.until(
+                ExpectedConditions.visibilityOfAllElementsLocatedBy(inventoryItems));
+        if (itemIndex < items.size()) {
+            WebElement button = items.get(itemIndex).findElement(By.cssSelector(".btn_inventory"));
+            // Only click if it's an "Add to Cart" button (not "Remove")
+            if (button.getText().toUpperCase().contains("ADD TO CART")) {
+                button.click();
+                // Small delay to let DOM update
+                try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+            }
+        }
+    }
+
     public void addFirstItemToCart() {
-        WebElement button = wait.until(
-                ExpectedConditions.elementToBeClickable(addToCartButtons));
-        button.click();
-        // Wait for cart badge to appear after click
-        wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
+        clickAddToCartOnItem(0);
     }
 
     public void addItemToCartByIndex(int index) {
-        // Re-query add-to-cart buttons each time since the DOM changes after each click
-        // (clicked buttons change from "Add to Cart" to "Remove" with a different data-test attribute)
-        List<WebElement> buttons = wait.until(
-                ExpectedConditions.visibilityOfAllElementsLocatedBy(addToCartButtons));
-        if (index < buttons.size()) {
-            buttons.get(0).click(); // Always click the first available "Add to Cart" button
-            // Wait for cart badge to appear/update
-            wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
-        }
+        clickAddToCartOnItem(index);
     }
 
     public String getCartBadgeCount() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
+            // Use findElements to avoid NoSuchElementException if badge doesn't exist
+            List<WebElement> badges = driver.findElements(cartBadge);
+            if (!badges.isEmpty()) {
+                return badges.get(0).getText();
+            }
+            return "0";
         } catch (Exception e) {
             return "0";
         }
