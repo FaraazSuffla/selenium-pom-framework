@@ -2,10 +2,15 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class CheckoutPage {
 
     private final WebDriver driver;
+    private final WebDriverWait wait;
 
     // Locators - Step One
     private final By firstNameField  = By.id("first-name");
@@ -25,10 +30,11 @@ public class CheckoutPage {
 
     public CheckoutPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public void enterFirstName(String firstName) {
-        driver.findElement(firstNameField).clear();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).clear();
         driver.findElement(firstNameField).sendKeys(firstName);
     }
 
@@ -49,39 +55,39 @@ public class CheckoutPage {
     }
 
     public void clickContinue() {
-        driver.findElement(continueButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
     }
 
     public void clickCancel() {
-        driver.findElement(cancelButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(cancelButton)).click();
     }
 
     public void clickFinish() {
-        driver.findElement(finishButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
     }
 
     public String getErrorMessage() {
-        return driver.findElement(errorMessage).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
     }
 
     public boolean isErrorDisplayed() {
         try {
-            return driver.findElement(errorMessage).isDisplayed();
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
 
     public String getSummaryTotal() {
-        return driver.findElement(summaryTotal).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(summaryTotal)).getText();
     }
 
     public String getConfirmationHeader() {
-        return driver.findElement(confirmationHeader).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmationHeader)).getText();
     }
 
     public String getConfirmationText() {
-        return driver.findElement(confirmationText).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmationText)).getText();
     }
 
     public boolean isOrderComplete() {
