@@ -44,7 +44,7 @@ jobs:
       - name: Run tests (headless Chrome)
         run: mvn test -B -Dbrowser=chrome -Dheadless=true
         env:
-          DISPLAY: :99
+          DISPLAY: ':99'
 
       - name: Upload Surefire test reports
         uses: actions/upload-artifact@v4
@@ -52,6 +52,14 @@ jobs:
         with:
           name: surefire-reports
           path: target/surefire-reports/
+          retention-days: 7
+
+      - name: Upload failure screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failure-screenshots
+          path: target/screenshots/
           retention-days: 7
 
       - name: Upload TestNG HTML report
