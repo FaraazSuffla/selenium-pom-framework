@@ -18,7 +18,7 @@ public class InventoryPage {
     // Locators
     private final By pageTitle        = By.cssSelector(".title");
     private final By inventoryItems   = By.cssSelector(".inventory_item");
-    private final By addToCartButtons = By.cssSelector(".btn_inventory");
+    private final By addToCartButtons = By.cssSelector("button[data-test^='add-to-cart']");
     private final By cartBadge        = By.cssSelector(".shopping_cart_badge");
     private final By cartIcon         = By.cssSelector(".shopping_cart_link");
     private final By sortDropdown     = By.cssSelector("[data-test='product_sort_container']");
@@ -46,21 +46,21 @@ public class InventoryPage {
     }
 
     public void addFirstItemToCart() {
-        List<WebElement> buttons = wait.until(
-                ExpectedConditions.visibilityOfAllElementsLocatedBy(addToCartButtons));
-        if (!buttons.isEmpty()) {
-            buttons.get(0).click();
-            // Wait for cart badge to appear/update after click
-            wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
-        }
+        WebElement button = wait.until(
+                ExpectedConditions.elementToBeClickable(addToCartButtons));
+        button.click();
+        // Wait for cart badge to appear after click
+        wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
     }
 
     public void addItemToCartByIndex(int index) {
+        // Re-query add-to-cart buttons each time since the DOM changes after each click
+        // (clicked buttons change from "Add to Cart" to "Remove" with a different data-test attribute)
         List<WebElement> buttons = wait.until(
                 ExpectedConditions.visibilityOfAllElementsLocatedBy(addToCartButtons));
         if (index < buttons.size()) {
-            buttons.get(index).click();
-            // Wait for cart badge to update after click
+            buttons.get(0).click(); // Always click the first available "Add to Cart" button
+            // Wait for cart badge to appear/update
             wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
         }
     }
