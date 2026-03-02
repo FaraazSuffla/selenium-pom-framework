@@ -23,11 +23,12 @@ public class CartPage {
 
     public CartPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        // Wait for the cart page to fully load
+        wait.until(ExpectedConditions.urlContains("cart"));
     }
 
     public boolean isOnCartPage() {
-        wait.until(ExpectedConditions.urlContains("cart"));
         return driver.getCurrentUrl().contains("cart");
     }
 
