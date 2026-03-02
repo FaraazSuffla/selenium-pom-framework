@@ -48,6 +48,14 @@ jobs:
         with:
           firefox-version: latest
 
+      - name: Verify browser installation
+        run: |
+          if [ "${{ matrix.browser }}" = "chrome" ]; then
+            google-chrome --version || true
+          else
+            firefox --version || true
+          fi
+
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
@@ -58,6 +66,8 @@ jobs:
 
       - name: Run full test suite on ${{ matrix.browser }}
         run: mvn clean test -B -Dbrowser=${{ matrix.browser }} -Dheadless=true
+        env:
+          DISPLAY: ':99'
 
       - name: Upload test results - ${{ matrix.browser }}
         uses: actions/upload-artifact@v4
