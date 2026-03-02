@@ -77,7 +77,15 @@ jobs:
           path: target/surefire-reports/
           retention-days: 14
 
+      - name: Upload failure screenshots - ${{ matrix.browser }}
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failure-screenshots-${{ matrix.browser }}
+          path: target/screenshots/
+          retention-days: 14
+
       - name: Notify on failure
         if: failure()
         run: |
-          echo "::error::Nightly tests FAILED on ${{ matrix.browser }}. Check artifacts for details."
+          echo "::error::Nightly tests FAILED on ${{ matrix.browser }}. Check screenshots and surefire-reports artifacts for details."
