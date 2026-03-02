@@ -25,7 +25,7 @@ public class DriverManager {
                 WebDriverManager.firefoxdriver().setup();
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
                 if (headless) {
-                    firefoxOptions.addArguments("--headless");
+                    firefoxOptions.addArguments("-headless");
                     firefoxOptions.addArguments("--width=1920");
                     firefoxOptions.addArguments("--height=1080");
                 }
@@ -36,13 +36,15 @@ public class DriverManager {
             default:
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.addArguments("--start-maximized");
                 if (headless) {
                     chromeOptions.addArguments("--headless=new");
                     chromeOptions.addArguments("--no-sandbox");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
                     chromeOptions.addArguments("--window-size=1920,1080");
                     chromeOptions.addArguments("--disable-gpu");
+                    chromeOptions.addArguments("--remote-allow-origins=*");
+                } else {
+                    chromeOptions.addArguments("--start-maximized");
                 }
                 driver.set(new ChromeDriver(chromeOptions));
                 break;
