@@ -3,13 +3,17 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.List;
 
 public class InventoryPage {
 
     private final WebDriver driver;
+    private final WebDriverWait wait;
 
     // Locators
     private final By pageTitle        = By.cssSelector(".title");
@@ -21,10 +25,11 @@ public class InventoryPage {
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public String getPageTitle() {
-        return driver.findElement(pageTitle).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText();
     }
 
     public boolean isOnInventoryPage() {
@@ -36,37 +41,45 @@ public class InventoryPage {
     }
 
     public int getInventoryItemCount() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryItems));
         return getInventoryItems().size();
     }
 
     public void addFirstItemToCart() {
-        List<WebElement> buttons = driver.findElements(addToCartButtons);
+        List<WebElement> buttons = wait.until(
+                ExpectedConditions.visibilityOfAllElementsLocatedBy(addToCartButtons));
         if (!buttons.isEmpty()) {
             buttons.get(0).click();
+            // Wait for cart badge to appear/update after click
+            wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
         }
     }
 
     public void addItemToCartByIndex(int index) {
-        List<WebElement> buttons = driver.findElements(addToCartButtons);
+        List<WebElement> buttons = wait.until(
+                ExpectedConditions.visibilityOfAllElementsLocatedBy(addToCartButtons));
         if (index < buttons.size()) {
             buttons.get(index).click();
+            // Wait for cart badge to update after click
+            wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge));
         }
     }
 
     public String getCartBadgeCount() {
         try {
-            return driver.findElement(cartBadge).getText();
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
         } catch (Exception e) {
             return "0";
         }
     }
 
     public void goToCart() {
-        driver.findElement(cartIcon).click();
+        wait.until(ExpectedConditions.elementToBeClickable(cartIcon)).click();
     }
 
     public void sortBy(String visibleText) {
-        Select select = new Select(driver.findElement(sortDropdown));
+        Select select = new Select(wait.until(
+                ExpectedConditions.elementToBeClickable(sortDropdown)));
         select.selectByVisibleText(visibleText);
     }
 }
