@@ -1,7 +1,9 @@
 package pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -56,15 +58,20 @@ public class CheckoutPage {
     }
 
     public void clickContinue() {
-        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
     }
 
     public void clickCancel() {
-        wait.until(ExpectedConditions.elementToBeClickable(cancelButton)).click();
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(cancelButton));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        wait.until(ExpectedConditions.urlContains("cart"));
     }
 
     public void clickFinish() {
-        wait.until(ExpectedConditions.elementToBeClickable(finishButton)).click();
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        wait.until(ExpectedConditions.urlContains("checkout-complete"));
     }
 
     public String getErrorMessage() {
