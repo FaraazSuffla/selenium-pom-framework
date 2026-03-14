@@ -57,8 +57,8 @@ public class InventoryPage {
             // Only click if it's an "Add to Cart" button (not "Remove")
             if (button.getText().toUpperCase().contains("ADD TO CART")) {
                 button.click();
-                // Small delay to let DOM update
-                try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+                // Wait until button changes to "Remove", confirming the cart action registered
+                wait.until(ExpectedConditions.textToBePresentInElement(button, "Remove"));
             }
         }
     }
@@ -86,6 +86,7 @@ public class InventoryPage {
 
     public void goToCart() {
         wait.until(ExpectedConditions.elementToBeClickable(cartIcon)).click();
+        wait.until(ExpectedConditions.urlContains("cart"));
     }
 
     public void sortBy(String visibleText) {
