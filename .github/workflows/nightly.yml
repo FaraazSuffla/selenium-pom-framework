@@ -1,9 +1,8 @@
 name: Nightly Test Run
 
 on:
-  # Schedule disabled until headless Chrome CI issues are resolved
-  # schedule:
-  #   - cron: '0 0 * * *'
+  schedule:
+    - cron: '0 0 * * *'
   workflow_dispatch:
     inputs:
       browser:
@@ -66,8 +65,6 @@ jobs:
 
       - name: Run full test suite on ${{ matrix.browser }}
         run: mvn clean test -B -Dbrowser=${{ matrix.browser }} -Dheadless=true
-        env:
-          DISPLAY: ':99'
 
       - name: Upload test results - ${{ matrix.browser }}
         uses: actions/upload-artifact@v4

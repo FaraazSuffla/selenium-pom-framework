@@ -43,8 +43,6 @@ jobs:
 
       - name: Run tests (headless Chrome)
         run: mvn test -B -Dbrowser=chrome -Dheadless=true
-        env:
-          DISPLAY: ':99'
 
       - name: Upload Surefire test reports
         uses: actions/upload-artifact@v4
