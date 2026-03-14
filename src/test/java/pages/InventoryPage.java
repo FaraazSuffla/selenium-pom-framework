@@ -4,7 +4,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -58,9 +57,8 @@ public class InventoryPage {
             WebElement button = items.get(itemIndex).findElement(By.cssSelector(".btn_inventory"));
             // Only click if it's an "Add to Cart" button (not "Remove")
             if (button.getText().toUpperCase().contains("ADD TO CART")) {
-                // Scroll into view then use Actions click — more reliable in headless Chrome
-                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", button);
-                new Actions(driver).moveToElement(button).click().perform();
+                // JS click bypasses overlay/coordinate issues in headless Chrome (React event delegation handles it)
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
                 // Re-find the button each poll to avoid StaleElementReferenceException
                 final int index = itemIndex;
                 wait.until(d -> {
@@ -99,7 +97,8 @@ public class InventoryPage {
     }
 
     public void goToCart() {
-        wait.until(ExpectedConditions.elementToBeClickable(cartIcon)).click();
+        WebElement cart = wait.until(ExpectedConditions.elementToBeClickable(cartIcon));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", cart);
         wait.until(ExpectedConditions.urlContains("cart"));
     }
 
