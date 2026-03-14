@@ -49,7 +49,7 @@ public class CartPage {
     public void removeItemByIndex(int index) {
         List<WebElement> buttons = driver.findElements(removeButtons);
         if (index < buttons.size()) {
-            buttons.get(index).click();
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", buttons.get(index));
         }
     }
 
@@ -60,6 +60,8 @@ public class CartPage {
     }
 
     public void continueShopping() {
-        wait.until(ExpectedConditions.elementToBeClickable(continueButton)).click();
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        wait.until(ExpectedConditions.urlContains("inventory"));
     }
 }
