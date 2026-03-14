@@ -57,8 +57,18 @@ public class InventoryPage {
             // Only click if it's an "Add to Cart" button (not "Remove")
             if (button.getText().toUpperCase().contains("ADD TO CART")) {
                 button.click();
-                // Wait until button changes to "Remove", confirming the cart action registered
-                wait.until(ExpectedConditions.textToBePresentInElement(button, "Remove"));
+                // Re-find the button each poll to avoid StaleElementReferenceException
+                final int index = itemIndex;
+                wait.until(d -> {
+                    try {
+                        List<WebElement> current = d.findElements(inventoryItems);
+                        if (index >= current.size()) return false;
+                        WebElement btn = current.get(index).findElement(By.cssSelector(".btn_inventory"));
+                        return btn.getText().equalsIgnoreCase("Remove");
+                    } catch (Exception e) {
+                        return false;
+                    }
+                });
             }
         }
     }
