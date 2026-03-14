@@ -45,7 +45,7 @@ jobs:
         run: mvn clean compile test-compile -B
 
       - name: Run tests
-        run: mvn test -B -Dbrowser=chrome -Dheadless=true -Dsurefire.suiteXmlFiles=src/test/resources/testng-ci.xml
+        run: mvn test -B -Dbrowser=chrome -Dheadless=true -DsuiteXmlFile=src/test/resources/testng-ci.xml
 
       - name: Upload surefire reports
         uses: actions/upload-artifact@v4
