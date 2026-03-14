@@ -1,14 +1,17 @@
-name: CI - Build & Test
+name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: Build & Run Tests
+  test:
+    name: Selenium Tests (Chrome, Headless)
     runs-on: ubuntu-latest
 
     steps:
@@ -22,13 +25,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Install Google Chrome
+      - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
-
-      - name: Verify Chrome installation
-        run: google-chrome --version
 
       - name: Cache Maven dependencies
         uses: actions/cache@v4
@@ -38,13 +38,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build with Maven
-        run: mvn clean compile -B
+      - name: Build
+        run: mvn clean compile test-compile -B
 
-      - name: Run tests (headless Chrome)
-        run: mvn test -B -Dbrowser=chrome -Dheadless=true
+      - name: Run tests
+        run: mvn test -B -Dbrowser=chrome -Dheadless=true -Dsurefire.suiteXmlFiles=src/test/resources/testng-ci.xml
 
-      - name: Upload Surefire test reports
+      - name: Upload surefire reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -58,12 +58,4 @@ jobs:
         with:
           name: failure-screenshots
           path: target/screenshots/
-          retention-days: 7
-
-      - name: Upload TestNG HTML report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: testng-report
-          path: target/surefire-reports/index.html
           retention-days: 7

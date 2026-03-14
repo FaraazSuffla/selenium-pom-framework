@@ -40,6 +40,9 @@ public class DriverManager {
                     chromeOptions.addArguments("--window-size=1920,1080");
                     chromeOptions.addArguments("--disable-gpu");
                     chromeOptions.addArguments("--remote-allow-origins=*");
+                    chromeOptions.addArguments("--disable-extensions");
+                    chromeOptions.addArguments("--disable-renderer-backgrounding");
+                    chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
                 } else {
                     chromeOptions.addArguments("--start-maximized");
                 }
