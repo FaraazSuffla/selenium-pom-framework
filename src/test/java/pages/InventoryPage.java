@@ -33,7 +33,14 @@ public class InventoryPage {
     }
 
     public boolean isOnInventoryPage() {
-        return driver.getCurrentUrl().contains("inventory");
+        try {
+            // Wait for navigation to complete — login uses JS click and returns immediately,
+            // so the URL may still be the login page when this is called.
+            wait.until(ExpectedConditions.urlContains("inventory"));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public List<WebElement> getInventoryItems() {

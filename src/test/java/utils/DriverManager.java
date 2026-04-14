@@ -33,6 +33,13 @@ public class DriverManager {
             case "chrome":
             default:
                 ChromeOptions chromeOptions = new ChromeOptions();
+                // If SE_CHROME is set (e.g. by browser-actions/setup-chrome in CI), point
+                // ChromeDriver at that binary so Selenium Manager downloads the matching driver
+                // version rather than searching for Chrome itself.
+                String chromeBinary = System.getenv("SE_CHROME");
+                if (chromeBinary != null && !chromeBinary.isEmpty()) {
+                    chromeOptions.setBinary(chromeBinary);
+                }
                 if (headless) {
                     chromeOptions.addArguments("--headless=new");
                     chromeOptions.addArguments("--no-sandbox");
@@ -43,6 +50,7 @@ public class DriverManager {
                     chromeOptions.addArguments("--disable-extensions");
                     chromeOptions.addArguments("--disable-renderer-backgrounding");
                     chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
+                    chromeOptions.addArguments("--disable-search-engine-choice-screen");
                 } else {
                     chromeOptions.addArguments("--start-maximized");
                 }

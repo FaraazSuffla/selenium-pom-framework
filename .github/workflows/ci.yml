@@ -29,6 +29,7 @@ jobs:
           cache: maven
 
       - name: Install Chrome
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -41,11 +42,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Cache Selenium Manager downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/selenium
+          key: ${{ runner.os }}-selenium-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-selenium-
+
       - name: Build
         run: mvn clean compile test-compile -B
 
       - name: Run tests
         run: mvn test -B -Dbrowser=chrome -Dheadless=true -DsuiteXmlFile=src/test/resources/testng-ci.xml
+        env:
+          # Tell Selenium Manager exactly which Chrome binary to use so it downloads
+          # the matching ChromeDriver rather than probing for Chrome itself.
+          SE_CHROME: ${{ steps.setup-chrome.outputs.chrome-path }}
 
       - name: Upload surefire reports
         uses: actions/upload-artifact@v4
