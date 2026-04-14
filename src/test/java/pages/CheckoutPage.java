@@ -36,19 +36,35 @@ public class CheckoutPage {
         wait.until(ExpectedConditions.urlContains("checkout-step-one"));
     }
 
+    /**
+     * Sets a React controlled input value correctly in headless Chrome 147+.
+     *
+     * Plain WebDriver sendKeys() fires keyboard events but does not trigger React's
+     * synthetic onChange/onInput delegation in newer headless Chrome, so React's
+     * internal state never updates — the form sees every field as empty when submitted.
+     * The fix: use the native HTMLInputElement value setter (bypassing React's overridden
+     * property) then dispatch a bubbling 'input' event, which React's event delegation
+     * does catch and uses to re-sync its internal state.
+     */
+    private void setInputValue(WebElement element, String value) {
+        ((JavascriptExecutor) driver).executeScript(
+            "var setter = Object.getOwnPropertyDescriptor(" +
+                "window.HTMLInputElement.prototype, 'value').set;" +
+            "setter.call(arguments[0], arguments[1]);" +
+            "arguments[0].dispatchEvent(new Event('input', {bubbles: true}));",
+            element, value);
+    }
+
     public void enterFirstName(String firstName) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).clear();
-        driver.findElement(firstNameField).sendKeys(firstName);
+        setInputValue(wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)), firstName);
     }
 
     public void enterLastName(String lastName) {
-        driver.findElement(lastNameField).clear();
-        driver.findElement(lastNameField).sendKeys(lastName);
+        setInputValue(driver.findElement(lastNameField), lastName);
     }
 
     public void enterPostalCode(String postalCode) {
-        driver.findElement(postalCodeField).clear();
-        driver.findElement(postalCodeField).sendKeys(postalCode);
+        setInputValue(driver.findElement(postalCodeField), postalCode);
     }
 
     public void fillCheckoutInfo(String firstName, String lastName, String postalCode) {
