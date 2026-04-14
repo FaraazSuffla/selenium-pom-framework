@@ -50,6 +50,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-selenium-
 
+      - name: Remove system ChromeDriver
+        # ubuntu-latest ships chromedriver v146 at /usr/bin/chromedriver which is one major
+        # version behind the Chrome stable we just installed (v147). Selenium Manager sees it
+        # in PATH, warns about the mismatch, but still uses it — causing React event handlers
+        # to misfire. Removing it forces Selenium Manager to download the matching v147 driver.
+        run: sudo rm -f /usr/bin/chromedriver /usr/bin/chromium-chromedriver
+
       - name: Build
         run: mvn clean compile test-compile -B
 
