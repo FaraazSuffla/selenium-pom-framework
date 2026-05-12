@@ -18,6 +18,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Base test class providing setup, teardown, and failure handling.
+ */
 public class BaseTest {
 
     protected WebDriver driver;
@@ -30,10 +33,8 @@ public class BaseTest {
         DriverManager.initDriver(browserToUse);
         driver = DriverManager.getDriver();
 
-        // Set implicit wait for CI stability
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-        // Only maximize when not running headless (headless window size is set in DriverManager)
         boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"))
                 || System.getenv("CI") != null;
         if (!headless) {
@@ -45,7 +46,6 @@ public class BaseTest {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown(ITestResult result) {
-        // Capture screenshot and page info on failure
         if (result.getStatus() == ITestResult.FAILURE) {
             captureScreenshot(result);
             logPageState(result);
@@ -61,17 +61,14 @@ public class BaseTest {
         if (currentDriver == null) return;
 
         try {
-            // Create screenshots directory
             Path screenshotDir = Paths.get(SCREENSHOT_DIR);
             Files.createDirectories(screenshotDir);
 
-            // Generate filename: ClassName_methodName_timestamp.png
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
             String fileName = result.getTestClass().getRealClass().getSimpleName()
                     + "_" + result.getMethod().getMethodName()
                     + "_" + timestamp + ".png";
 
-            // Take screenshot
             File screenshot = ((TakesScreenshot) currentDriver).getScreenshotAs(OutputType.FILE);
             Path destination = screenshotDir.resolve(fileName);
             Files.copy(screenshot.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
@@ -96,7 +93,6 @@ public class BaseTest {
             System.out.println("[URL]   " + currentDriver.getCurrentUrl());
             System.out.println("[TITLE] " + currentDriver.getTitle());
 
-            // Log page source snippet (first 2000 chars) to help identify page state
             String pageSource = currentDriver.getPageSource();
             if (pageSource != null && pageSource.length() > 2000) {
                 pageSource = pageSource.substring(0, 2000) + "\n... [truncated]";

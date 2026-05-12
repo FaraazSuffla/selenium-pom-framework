@@ -1,18 +1,10 @@
 package pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
-
-public class CheckoutPage {
-
-    private final WebDriver driver;
-    private final WebDriverWait wait;
+public class CheckoutPage extends BasePage {
 
     // Locators - Step One
     private final By firstNameField  = By.id("first-name");
@@ -31,9 +23,8 @@ public class CheckoutPage {
     private final By confirmationText   = By.cssSelector(".complete-text");
 
     public CheckoutPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        wait.until(ExpectedConditions.urlContains("checkout-step-one"));
+        super(driver);
+        waitForUrlContains("checkout-step-one");
     }
 
     /**
@@ -47,7 +38,7 @@ public class CheckoutPage {
      * does catch and uses to re-sync its internal state.
      */
     private void setInputValue(WebElement element, String value) {
-        ((JavascriptExecutor) driver).executeScript(
+        executeJs(
             "var setter = Object.getOwnPropertyDescriptor(" +
                 "window.HTMLInputElement.prototype, 'value').set;" +
             "setter.call(arguments[0], arguments[1]);" +
@@ -56,15 +47,15 @@ public class CheckoutPage {
     }
 
     public void enterFirstName(String firstName) {
-        setInputValue(wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)), firstName);
+        setInputValue(waitForVisibility(firstNameField), firstName);
     }
 
     public void enterLastName(String lastName) {
-        setInputValue(driver.findElement(lastNameField), lastName);
+        setInputValue(findElement(lastNameField), lastName);
     }
 
     public void enterPostalCode(String postalCode) {
-        setInputValue(driver.findElement(postalCodeField), postalCode);
+        setInputValue(findElement(postalCodeField), postalCode);
     }
 
     public void fillCheckoutInfo(String firstName, String lastName, String postalCode) {
@@ -74,44 +65,40 @@ public class CheckoutPage {
     }
 
     public void clickContinue() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        WebElement btn = waitForClickability(continueButton);
+        clickElementWithJs(btn);
     }
 
     public void clickCancel() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(cancelButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-        wait.until(ExpectedConditions.urlContains("cart"));
+        WebElement btn = waitForClickability(cancelButton);
+        clickElementWithJs(btn);
+        waitForUrlContains("cart");
     }
 
     public void clickFinish() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(finishButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-        wait.until(ExpectedConditions.urlContains("checkout-complete"));
+        WebElement btn = waitForClickability(finishButton);
+        clickElementWithJs(btn);
+        waitForUrlContains("checkout-complete");
     }
 
     public String getErrorMessage() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
+        return getElementText(errorMessage);
     }
 
     public boolean isErrorDisplayed() {
-        try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        return isElementDisplayed(errorMessage);
     }
 
     public String getSummaryTotal() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(summaryTotal)).getText();
+        return getElementText(summaryTotal);
     }
 
     public String getConfirmationHeader() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmationHeader)).getText();
+        return getElementText(confirmationHeader);
     }
 
     public String getConfirmationText() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmationText)).getText();
+        return getElementText(confirmationText);
     }
 
     public boolean isOrderComplete() {

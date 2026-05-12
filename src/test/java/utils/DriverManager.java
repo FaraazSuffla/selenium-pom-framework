@@ -6,57 +6,75 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
+/**
+ * Manages WebDriver lifecycle with thread-safe storage.
+ */
 public class DriverManager {
 
     private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
 
+    /**
+     * Initializes a WebDriver instance for the specified browser.
+     */
     public static void initDriver(String browser) {
         if (browser == null || browser.isEmpty()) {
             browser = "chrome";
         }
 
-        // Detect headless mode — enabled via -Dheadless=true or in CI environment
         boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"))
                 || System.getenv("CI") != null;
 
         switch (browser.toLowerCase()) {
             case "firefox":
-                FirefoxOptions firefoxOptions = new FirefoxOptions();
-                if (headless) {
-                    firefoxOptions.addArguments("-headless");
-                    firefoxOptions.addArguments("--width=1920");
-                    firefoxOptions.addArguments("--height=1080");
-                }
-                driver.set(new FirefoxDriver(firefoxOptions));
+                driver.set(createFirefoxDriver(headless));
                 break;
-
             case "chrome":
             default:
-                ChromeOptions chromeOptions = new ChromeOptions();
-                // If SE_CHROME is set (e.g. by browser-actions/setup-chrome in CI), point
-                // ChromeDriver at that binary so Selenium Manager downloads the matching driver
-                // version rather than searching for Chrome itself.
-                String chromeBinary = System.getenv("SE_CHROME");
-                if (chromeBinary != null && !chromeBinary.isEmpty()) {
-                    chromeOptions.setBinary(chromeBinary);
-                }
-                if (headless) {
-                    chromeOptions.addArguments("--headless=new");
-                    chromeOptions.addArguments("--no-sandbox");
-                    chromeOptions.addArguments("--disable-dev-shm-usage");
-                    chromeOptions.addArguments("--window-size=1920,1080");
-                    chromeOptions.addArguments("--disable-gpu");
-                    chromeOptions.addArguments("--remote-allow-origins=*");
-                    chromeOptions.addArguments("--disable-extensions");
-                    chromeOptions.addArguments("--disable-renderer-backgrounding");
-                    chromeOptions.addArguments("--disable-backgrounding-occluded-windows");
-                    chromeOptions.addArguments("--disable-search-engine-choice-screen");
-                } else {
-                    chromeOptions.addArguments("--start-maximized");
-                }
-                driver.set(new ChromeDriver(chromeOptions));
+                driver.set(createChromeDriver(headless));
                 break;
         }
+    }
+
+    private static WebDriver createChromeDriver(boolean headless) {
+        ChromeOptions chromeOptions = new ChromeOptions();
+        
+        String chromeBinary = System.getenv("SE_CHROME");
+        if (chromeBinary != null && !chromeBinary.isEmpty()) {
+            chromeOptions.setBinary(chromeBinary);
+        }
+        
+        if (headless) {
+            configureHeadlessChrome(chromeOptions);
+        } else {
+            chromeOptions.addArguments("--start-maximized");
+        }
+        
+        return new ChromeDriver(chromeOptions);
+    }
+
+    private static void configureHeadlessChrome(ChromeOptions options) {
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--disable-extensions");
+        options.addArguments("--disable-renderer-backgrounding");
+        options.addArguments("--disable-backgrounding-occluded-windows");
+        options.addArguments("--disable-search-engine-choice-screen");
+    }
+
+    private static WebDriver createFirefoxDriver(boolean headless) {
+        FirefoxOptions firefoxOptions = new FirefoxOptions();
+        
+        if (headless) {
+            firefoxOptions.addArguments("-headless");
+            firefoxOptions.addArguments("--width=1920");
+            firefoxOptions.addArguments("--height=1080");
+        }
+        
+        return new FirefoxDriver(firefoxOptions);
     }
 
     public static WebDriver getDriver() {

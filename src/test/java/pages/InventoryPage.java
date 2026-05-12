@@ -1,20 +1,14 @@
 package pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
 
-public class InventoryPage {
-
-    private final WebDriver driver;
-    private final WebDriverWait wait;
+public class InventoryPage extends BasePage {
 
     // Locators
     private final By pageTitle        = By.cssSelector(".title");
@@ -24,31 +18,23 @@ public class InventoryPage {
     private final By sortDropdown     = By.cssSelector("[data-test='product_sort_container']");
 
     public InventoryPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        super(driver);
     }
 
     public String getPageTitle() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText();
+        return getElementText(pageTitle);
     }
 
     public boolean isOnInventoryPage() {
-        try {
-            // Wait for navigation to complete — login uses JS click and returns immediately,
-            // so the URL may still be the login page when this is called.
-            wait.until(ExpectedConditions.urlContains("inventory"));
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+        return waitForUrlContains("inventory");
     }
 
     public List<WebElement> getInventoryItems() {
-        return driver.findElements(inventoryItems);
+        return findElements(inventoryItems);
     }
 
     public int getInventoryItemCount() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryItems));
+        waitForVisibility(inventoryItems);
         return getInventoryItems().size();
     }
 
@@ -64,8 +50,7 @@ public class InventoryPage {
             WebElement button = items.get(itemIndex).findElement(By.cssSelector(".btn_inventory"));
             // Only click if it's an "Add to Cart" button (not "Remove")
             if (button.getText().toUpperCase().contains("ADD TO CART")) {
-                // JS click bypasses overlay/coordinate issues in headless Chrome (React event delegation handles it)
-                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
+                clickElementWithJs(button);
                 // Re-find the button each poll to avoid StaleElementReferenceException
                 final int index = itemIndex;
                 wait.until(d -> {
@@ -92,8 +77,7 @@ public class InventoryPage {
 
     public String getCartBadgeCount() {
         try {
-            // Use findElements to avoid NoSuchElementException if badge doesn't exist
-            List<WebElement> badges = driver.findElements(cartBadge);
+            List<WebElement> badges = findElements(cartBadge);
             if (!badges.isEmpty()) {
                 return badges.get(0).getText();
             }
@@ -104,14 +88,13 @@ public class InventoryPage {
     }
 
     public void goToCart() {
-        WebElement cart = wait.until(ExpectedConditions.elementToBeClickable(cartIcon));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", cart);
-        wait.until(ExpectedConditions.urlContains("cart"));
+        WebElement cart = waitForClickability(cartIcon);
+        clickElementWithJs(cart);
+        waitForUrlContains("cart");
     }
 
     public void sortBy(String visibleText) {
-        Select select = new Select(wait.until(
-                ExpectedConditions.elementToBeClickable(sortDropdown)));
+        Select select = new Select(waitForClickability(sortDropdown));
         select.selectByVisibleText(visibleText);
     }
 }
