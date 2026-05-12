@@ -1,19 +1,12 @@
 package pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
 
-public class CartPage {
-
-    private final WebDriver driver;
-    private final WebDriverWait wait;
+public class CartPage extends BasePage {
 
     // Locators
     private final By cartItems       = By.cssSelector(".cart_item");
@@ -23,10 +16,8 @@ public class CartPage {
     private final By itemNames       = By.cssSelector(".inventory_item_name");
 
     public CartPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        // Wait for the cart page to fully load
-        wait.until(ExpectedConditions.urlContains("cart"));
+        super(driver);
+        waitForUrlContains("cart");
     }
 
     public boolean isOnCartPage() {
@@ -34,7 +25,7 @@ public class CartPage {
     }
 
     public List<WebElement> getCartItems() {
-        return driver.findElements(cartItems);
+        return findElements(cartItems);
     }
 
     public int getCartItemCount() {
@@ -42,26 +33,26 @@ public class CartPage {
     }
 
     public List<String> getCartItemNames() {
-        List<WebElement> names = driver.findElements(itemNames);
+        List<WebElement> names = findElements(itemNames);
         return names.stream().map(WebElement::getText).toList();
     }
 
     public void removeItemByIndex(int index) {
-        List<WebElement> buttons = driver.findElements(removeButtons);
+        List<WebElement> buttons = findElements(removeButtons);
         if (index < buttons.size()) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", buttons.get(index));
+            clickElementWithJs(buttons.get(index));
         }
     }
 
     public void clickCheckout() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(checkoutButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-        wait.until(ExpectedConditions.urlContains("checkout-step-one"));
+        WebElement btn = waitForClickability(checkoutButton);
+        clickElementWithJs(btn);
+        waitForUrlContains("checkout-step-one");
     }
 
     public void continueShopping() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(continueButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-        wait.until(ExpectedConditions.urlContains("inventory"));
+        WebElement btn = waitForClickability(continueButton);
+        clickElementWithJs(btn);
+        waitForUrlContains("inventory");
     }
 }

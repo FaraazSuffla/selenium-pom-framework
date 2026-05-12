@@ -1,29 +1,30 @@
-# Maven
-target/
+```
+# Compiled files
 *.class
-*.jar
+*.o
+*.obj
 
-# IntelliJ IDEA
-.idea/
-*.iml
-*.iws
-*.ipr
-out/
+# Dependencies
+.gradle/
+target/
 
-# Eclipse
-.classpath
-.project
-.settings/
-
-# VS Code
+# IDE files
 .vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
 
-# OS
-.DS_Store
-Thumbs.db
+# Logs
+*.log
 
-# Test output
-test-output/
-surefire-reports/
-allure-results/
-screenshots/
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Environment
+.env
+.env.local
+*.env.*
+```

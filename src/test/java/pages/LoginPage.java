@@ -1,18 +1,11 @@
 package pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
-
-public class LoginPage {
-
-    private final WebDriver driver;
-    private final WebDriverWait wait;
+public class LoginPage extends BasePage {
 
     // Locators
     private final By usernameField = By.id("user-name");
@@ -21,23 +14,22 @@ public class LoginPage {
     private final By errorMessage  = By.cssSelector("[data-test='error']");
 
     public LoginPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        super(driver);
     }
 
     public void enterUsername(String username) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(usernameField)).clear();
-        driver.findElement(usernameField).sendKeys(username);
+        waitForVisibility(usernameField).clear();
+        findElement(usernameField).sendKeys(username);
     }
 
     public void enterPassword(String password) {
-        driver.findElement(passwordField).clear();
-        driver.findElement(passwordField).sendKeys(password);
+        findElement(passwordField).clear();
+        findElement(passwordField).sendKeys(password);
     }
 
     public void clickLogin() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(loginButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        WebElement btn = waitForClickability(loginButton);
+        clickElementWithJs(btn);
     }
 
     public void login(String username, String password) {
@@ -47,15 +39,10 @@ public class LoginPage {
     }
 
     public String getErrorMessage() {
-        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage));
-        return error.getText();
+        return getElementText(errorMessage);
     }
 
     public boolean isErrorDisplayed() {
-        try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        return isElementDisplayed(errorMessage);
     }
 }
